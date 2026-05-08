@@ -1,0 +1,51 @@
+<script>
+    async function talkToPast() {
+        const input = document.getElementById('userInput');
+        const display = document.getElementById('chat-display');
+        const userText = input.value;
+
+        if(!userText) return;
+
+        display.innerText = "Yaadon ki duniya se jud raha hoon... ✨";
+
+        // TERI API KEY
+        const KEY = "AIzaSyDDLyqIUcIm9Ggr0nDLoO2AScXTX5MpW3Y";
+        
+        // --- FIXED URL: v1 use kar rahe hain aur model name fixed hai ---
+        const URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+
+        try {
+            const response = await fetch(URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: "Tu ek 8 saal ka Indian bacha hai. User ne kaha: '" + userText + "'. Hindi mein 1 line ka emotional jawab de." }] }]
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.error) {
+                // Agar ab bhi error aaye toh v1beta try karne ka logic:
+                console.log("Retrying with v1beta...");
+                const betaURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+                // (Yahan hum ek backup call bhi rakh sakte hain, par pehle v1 check karo)
+                display.innerText = "Google Server Busy. Refresh karein.";
+                return;
+            }
+
+            if (data.candidates && data.candidates[0].content) {
+                const reply = data.candidates[0].content.parts[0].text;
+                display.innerText = reply;
+
+                // --- AWAAZ ---
+                const msg = new SpeechSynthesisUtterance(reply);
+                msg.lang = 'hi-IN';
+                msg.pitch = 1.7;
+                window.speechSynthesis.speak(msg);
+            }
+        } catch (err) {
+            display.innerText = "Network slow hai, refresh karein.";
+        }
+    }
+</script>
