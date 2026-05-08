@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -6,20 +7,21 @@
     <title>REWIND AI</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #000; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        .card { width: 90%; max-width: 400px; background: #111; padding: 30px; border-radius: 20px; text-align: center; border: 1px solid #f1c40f; }
-        h1 { color: #f1c40f; margin-bottom: 20px; }
-        #chat-display { background: #222; padding: 15px; border-radius: 10px; min-height: 100px; margin-bottom: 20px; text-align: left; border-left: 4px solid #f1c40f; }
-        input { width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 15px; background: #000; color: #fff; border: 1px solid #444; outline: none; }
-        button { width: 100%; padding: 15px; border-radius: 10px; border: none; background: #f1c40f; color: #000; font-weight: bold; cursor: pointer; }
+        body { background: #000; color: #fff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .card { width: 90%; max-width: 380px; background: #111; padding: 30px; border-radius: 20px; border: 1px solid #f1c40f; text-align: center; box-shadow: 0 0 25px rgba(241, 196, 15, 0.15); }
+        h1 { color: #f1c40f; margin-bottom: 15px; font-size: 26px; letter-spacing: 1px; }
+        #chat-display { background: #1a1a1a; padding: 15px; border-radius: 12px; min-height: 110px; margin-bottom: 20px; text-align: left; border-left: 5px solid #f1c40f; color: #ddd; font-style: italic; line-height: 1.5; }
+        input { width: 100%; padding: 14px; border-radius: 10px; margin-bottom: 15px; background: #000; color: #fff; border: 1px solid #444; outline: none; font-size: 16px; }
+        button { width: 100%; padding: 15px; border-radius: 10px; border: none; background: #f1c40f; color: #000; font-weight: bold; font-size: 18px; cursor: pointer; transition: 0.2s; }
+        button:active { transform: scale(0.96); }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h1>REWIND AI</h1>
-        <div id="chat-display">...intezar kar raha hoon... ✨</div>
-        <input type="text" id="userInput" placeholder="Kuch pucho...">
+        <div id="chat-display">Yaadon ka darwaza khulne wala hai... ✨</div>
+        <input type="text" id="userInput" placeholder="Apne bachpan se pucho...">
         <button onclick="talkToPast()">Magic Dekhein</button>
     </div>
 
@@ -29,10 +31,10 @@
             const display = document.getElementById('chat-display');
             if(!input.value) return;
 
-            display.innerText = "Connecting... ⏳";
+            display.innerText = "Aapka beeta hua kal aa raha hai... ⏳";
 
-            const KEY = "AIzaSyDDLyqIUcIm9Ggr0nDLoO2AScXTX5MpW3Y";
-            // Sabse stable URL for Gemini 1.5 Flash
+            // TERI EKDOM FRESH KEY
+            const KEY = "AIzaSyBsrLCOlKwwSNpMkwgiycGz8sImId6eeAw"; 
             const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
 
             try {
@@ -40,7 +42,7 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Tu ek 8 saal ka bacha hai. Hindi mein 1 line ka emotional jawab de: " + input.value }] }]
+                        contents: [{ parts: [{ text: "Tu ek 8 saal ka pyara Indian bacha hai jiska naam Neeraj ka bachpan hai. User ke sawal ka emotional Hindi mein 1 line ka jawab de: " + input.value }] }]
                     })
                 });
 
@@ -50,16 +52,18 @@
                     const reply = data.candidates[0].content.parts[0].text;
                     display.innerText = reply;
 
-                    // Awaaz
+                    // Awaaz ka magic
                     const msg = new SpeechSynthesisUtterance(reply);
                     msg.lang = 'hi-IN';
-                    msg.pitch = 1.7;
+                    msg.pitch = 1.7; // Masoom awaaz
+                    msg.rate = 0.9;
                     window.speechSynthesis.speak(msg);
+                    input.value = ""; 
                 } else {
-                    display.innerText = "Error: Google ne jawab nahi diya.";
+                    display.innerText = "Bacha kuch soch raha hai, phir se pucho!";
                 }
             } catch (err) {
-                display.innerText = "Network Error! Refresh karein.";
+                display.innerText = "Network slow hai, refresh karke dekho.";
             }
         }
     </script>
