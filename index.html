@@ -1,51 +1,67 @@
-<script>
-    async function talkToPast() {
-        const input = document.getElementById('userInput');
-        const display = document.getElementById('chat-display');
-        const userText = input.value;
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REWIND AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .card { width: 90%; max-width: 400px; background: #111; padding: 30px; border-radius: 20px; text-align: center; border: 1px solid #f1c40f; }
+        h1 { color: #f1c40f; margin-bottom: 20px; }
+        #chat-display { background: #222; padding: 15px; border-radius: 10px; min-height: 100px; margin-bottom: 20px; text-align: left; border-left: 4px solid #f1c40f; }
+        input { width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 15px; background: #000; color: #fff; border: 1px solid #444; outline: none; }
+        button { width: 100%; padding: 15px; border-radius: 10px; border: none; background: #f1c40f; color: #000; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
 
-        if(!userText) return;
+    <div class="card">
+        <h1>REWIND AI</h1>
+        <div id="chat-display">...intezar kar raha hoon... ✨</div>
+        <input type="text" id="userInput" placeholder="Kuch pucho...">
+        <button onclick="talkToPast()">Magic Dekhein</button>
+    </div>
 
-        display.innerText = "Yaadon ki duniya se jud raha hoon... ✨";
+    <script>
+        async function talkToPast() {
+            const input = document.getElementById('userInput');
+            const display = document.getElementById('chat-display');
+            if(!input.value) return;
 
-        // TERI API KEY
-        const KEY = "AIzaSyDDLyqIUcIm9Ggr0nDLoO2AScXTX5MpW3Y";
-        
-        // --- FIXED URL: v1 use kar rahe hain aur model name fixed hai ---
-        const URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+            display.innerText = "Connecting... ⏳";
 
-        try {
-            const response = await fetch(URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: "Tu ek 8 saal ka Indian bacha hai. User ne kaha: '" + userText + "'. Hindi mein 1 line ka emotional jawab de." }] }]
-                })
-            });
+            const KEY = "AIzaSyDDLyqIUcIm9Ggr0nDLoO2AScXTX5MpW3Y";
+            // Sabse stable URL for Gemini 1.5 Flash
+            const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
 
-            const data = await response.json();
-            
-            if (data.error) {
-                // Agar ab bhi error aaye toh v1beta try karne ka logic:
-                console.log("Retrying with v1beta...");
-                const betaURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
-                // (Yahan hum ek backup call bhi rakh sakte hain, par pehle v1 check karo)
-                display.innerText = "Google Server Busy. Refresh karein.";
-                return;
+            try {
+                const response = await fetch(URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Tu ek 8 saal ka bacha hai. Hindi mein 1 line ka emotional jawab de: " + input.value }] }]
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates[0].content) {
+                    const reply = data.candidates[0].content.parts[0].text;
+                    display.innerText = reply;
+
+                    // Awaaz
+                    const msg = new SpeechSynthesisUtterance(reply);
+                    msg.lang = 'hi-IN';
+                    msg.pitch = 1.7;
+                    window.speechSynthesis.speak(msg);
+                } else {
+                    display.innerText = "Error: Google ne jawab nahi diya.";
+                }
+            } catch (err) {
+                display.innerText = "Network Error! Refresh karein.";
             }
-
-            if (data.candidates && data.candidates[0].content) {
-                const reply = data.candidates[0].content.parts[0].text;
-                display.innerText = reply;
-
-                // --- AWAAZ ---
-                const msg = new SpeechSynthesisUtterance(reply);
-                msg.lang = 'hi-IN';
-                msg.pitch = 1.7;
-                window.speechSynthesis.speak(msg);
-            }
-        } catch (err) {
-            display.innerText = "Network slow hai, refresh karein.";
         }
-    }
-</script>
+    </script>
+</body>
+</html>
